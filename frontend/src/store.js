@@ -32,7 +32,8 @@ export default new Vuex.Store({
       const { username, password } = userInfo
       return new Promise((resolve, reject) => {
         login(username, password).then(response => {
-          const { access } = response.data
+          // 注意：api.js 已返回 response.data，直接从 response 取数据
+          const { access } = response
           setToken(access)
           commit('SET_TOKEN', access)
           resolve()
@@ -42,8 +43,8 @@ export default new Vuex.Store({
       })
     },
 
-    // 注册
-    Register({ commit }, userInfo) {
+    // 注册（移除空对象参数，解决 no-empty-pattern 错误）
+    Register(userInfo) {  // 仅保留 userInfo 参数
       const { username, email, password, password2 } = userInfo
       return new Promise((resolve, reject) => {
         register(username, email, password, password2).then(() => {

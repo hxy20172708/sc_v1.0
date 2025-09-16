@@ -11,23 +11,23 @@
       <el-container>
         <el-aside width="200px" class="aside">
           <el-menu
-            default-active="1"
+            default-active="/servers"
             class="el-menu-vertical-demo"
-            @select="handleMenuSelect"
+            router
           >
-            <el-menu-item index="1" route="/servers">
+            <el-menu-item index="/servers">
               <i class="el-icon-server"></i>
               <span slot="title">服务器管理</span>
             </el-menu-item>
-            <el-menu-item index="2" route="/rooms">
+            <el-menu-item index="/rooms">
               <i class="el-icon-office-building"></i>
               <span slot="title">机房管理</span>
             </el-menu-item>
-            <el-menu-item index="3" route="/tasks">
+            <el-menu-item index="/tasks">
               <i class="el-icon-s-order"></i>
               <span slot="title">任务管理</span>
             </el-menu-item>
-            <el-menu-item index="4" route="/environments">
+            <el-menu-item index="/environments">
               <i class="el-icon-layout"></i>
               <span slot="title">环境管理</span>
             </el-menu-item>
@@ -58,9 +58,6 @@ export default {
   },
   methods: {
     ...mapActions(['Logout']),
-    handleMenuSelect(key, keyPath) {
-      console.log(key, keyPath)
-    },
     handleLogout() {
       this.Logout().then(() => {
         this.$router.push('/login')
@@ -131,4 +128,3 @@ export default {
   overflow-y: auto;
 }
 </style>
-    

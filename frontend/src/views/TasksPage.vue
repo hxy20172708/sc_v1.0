@@ -5,7 +5,7 @@
         <h2>任务管理</h2>
         <el-button type="primary" @click="showAddTaskDialog">添加定时任务</el-button>
       </div>
-      
+
       <div class="search-bar">
         <el-input
           v-model="searchQuery"
@@ -27,7 +27,7 @@
           <el-option label="失败" value="failed"></el-option>
         </el-select>
       </div>
-      
+
       <el-table
         :data="filteredTasks"
         border
@@ -114,7 +114,7 @@
           </template>
         </el-table-column>
       </el-table>
-      
+
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
@@ -126,7 +126,7 @@
         style="margin-top: 20px; text-align: right;"
       ></el-pagination>
     </el-card>
-    
+
     <!-- 添加/编辑任务对话框 -->
     <el-dialog
       :title="taskDialogTitle"
@@ -161,8 +161,8 @@
           </el-select>
         </el-form-item>
         <el-form-item label="Cron表达式" prop="schedule">
-          <el-input 
-            v-model="taskForm.schedule" 
+          <el-input
+            v-model="taskForm.schedule"
             placeholder="格式：分 时 日 月 周，例如：0 0 * * * 表示每天凌晨执行"
           ></el-input>
         </el-form-item>
@@ -172,7 +172,7 @@
         <el-button type="primary" @click="saveTask">保存</el-button>
       </div>
     </el-dialog>
-    
+
     <!-- 任务执行结果对话框 -->
     <el-dialog
       title="任务执行结果"
@@ -218,8 +218,8 @@
           label="错误信息"
         >
           <template slot-scope="scope">
-            <el-button 
-              type="text" 
+            <el-button
+              type="text"
               style="color: #f56c6c;"
               @click="showOutputDetail(scope.row.error, true)"
               v-if="scope.row.error"
@@ -230,7 +230,7 @@
           </template>
         </el-table-column>
       </el-table>
-      
+
       <el-pagination
         @size-change="handleResultSizeChange"
         @current-change="handleResultCurrentChange"
@@ -242,7 +242,7 @@
         style="margin-top: 15px; text-align: right;"
       ></el-pagination>
     </el-dialog>
-    
+
     <!-- 输出详情对话框 -->
     <el-dialog
       :title="outputDialogTitle"
@@ -274,12 +274,12 @@ export default {
       currentPage: 1,
       pageSize: 10,
       totalTasks: 0,
-      
+
       resultCurrentPage: 1,
       resultPageSize: 10,
       totalResults: 0,
       currentTaskId: null,
-      
+
       taskDialogVisible: false,
       taskDialogTitle: '添加定时任务',
       currentTaskIdEdit: null,
@@ -304,7 +304,7 @@ export default {
           { required: true, message: '请输入Cron表达式', trigger: 'blur' }
         ]
       },
-      
+
       resultDialogVisible: false,
       outputDialogVisible: false,
       outputDialogTitle: '输出详情',
@@ -318,7 +318,7 @@ export default {
   methods: {
     loadServers() {
       getServers().then(response => {
-        this.servers = response.data.results
+        this.servers = response.results
       }).catch(error => {
         const errorDetail = error.response && error.response.data && error.response.data.detail;
         this.$message.error('获取服务器列表失败: ' + (errorDetail || error.message));
@@ -335,7 +335,7 @@ export default {
       if (this.selectedStatus) {
         params.status = this.selectedStatus
       }
-      
+
       getTasks(params).then(response => {
         this.tasks = response.results
         this.totalTasks = response.count
@@ -439,7 +439,7 @@ export default {
           spinner: 'el-icon-loading',
           background: 'rgba(0, 0, 0, 0.7)'
         })
-        
+
         executeTaskNow(id).then(() => {
           loading.close()
           this.$message.success('任务执行成功，可查看执行结果')
@@ -465,7 +465,7 @@ export default {
         page_size: this.resultPageSize,
         task: this.currentTaskId
       }
-      
+
       getTaskResults(params).then(response => {
         this.taskResults = response.results
         this.totalResults = response.count
@@ -512,4 +512,3 @@ pre {
   border-radius: 4px;
 }
 </style>
-    
