@@ -27,22 +27,22 @@ const router = new Router({
       meta: { requiresAuth: true },
       children: [
         {
-          path: '/servers',
+          path: 'servers',
           name: 'servers',
           component: ServersPage
         },
         {
-          path: '/rooms',
+          path: 'rooms',
           name: 'rooms',
           component: RoomsPage
         },
         {
-          path: '/tasks',
+          path: 'tasks',
           name: 'tasks',
           component: TasksPage
         },
         {
-          path: '/environments',
+          path: 'environments',
           name: 'environments',
           component: EnvironmentsPage
         }
@@ -51,7 +51,7 @@ const router = new Router({
   ]
 })
 
-// 路由守卫
+// 路由守卫：验证登录状态
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!getToken()) {

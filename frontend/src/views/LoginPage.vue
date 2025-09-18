@@ -27,7 +27,12 @@
               <el-input v-model="registerForm.email" placeholder="请输入邮箱"></el-input>
             </el-form-item>
             <el-form-item label="密码" prop="password">
-              <el-input type="password" v-model="registerForm.password" placeholder="请输入密码"></el-input>
+              <el-input
+                type="password"
+                v-model="registerForm.password"
+                placeholder="请输入密码（至少6位，需包含字母和数字）"
+              ></el-input>
+              <div class="password-hint">密码提示：不能太简单，需包含字母和数字，长度至少6位</div>
             </el-form-item>
             <el-form-item label="确认密码" prop="password2">
               <el-input type="password" v-model="registerForm.password2" placeholder="请再次输入密码"></el-input>
@@ -51,6 +56,20 @@ export default {
     const validatePassword2 = (rule, value, callback) => {
       if (value !== this.registerForm.password) {
         callback(new Error('两次输入的密码不一致'))
+      } else {
+        callback()
+      }
+    }
+    // 密码强度验证：至少6位，包含字母和数字
+    const validatePasswordStrength = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请输入密码'))
+      } else if (value.length < 6) {
+        callback(new Error('密码长度不能少于6位'))
+      } else if (!/[A-Za-z]/.test(value)) {
+        callback(new Error('密码必须包含字母'))
+      } else if (!/\d/.test(value)) {
+        callback(new Error('密码必须包含数字'))
       } else {
         callback()
       }
@@ -85,7 +104,7 @@ export default {
         ],
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' },
-          { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+          { validator: validatePasswordStrength, trigger: 'blur' }
         ],
         password2: [
           { required: true, message: '请再次输入密码', trigger: 'blur' },
@@ -100,20 +119,14 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.Login(this.loginForm).then(() => {
-            this.$router.push('/servers')
+            const redirectPath = this.$route.query.redirect || '/servers'
+            this.$router.push(redirectPath)
             this.$message.success('登录成功')
           }).catch(error => {
-            let errorMsg = '登录失败';
-            if (error.response) {
-              if (error.response.data) {
-                if (error.response.data.detail) {
-                  errorMsg = error.response.data.detail;
-                } else {
-                  for (const key in error.response.data) {
-                    errorMsg = error.response.data[key].join(', ');
-                    break;
-                  }
-                }
+            let errorMsg = '登录失败：用户名或密码错误';
+            if (error.response && error.response.data) {
+              if (error.response.data.detail) {
+                errorMsg = `登录失败：${error.response.data.detail}`;
               }
             }
             this.$message.error(errorMsg);
@@ -127,12 +140,17 @@ export default {
           this.Register(this.registerForm).then(() => {
             this.$message.success('注册成功，请登录')
             this.activeTab = 'login'
+            this.$refs.registerForm.resetFields()
           }).catch(error => {
             let errorMsg = '注册失败';
             if (error.response && error.response.data) {
-              for (const key in error.response.data) {
-                errorMsg = error.response.data[key].join(', ');
-                break;
+              if (error.response.data.password) {
+                errorMsg = `密码错误：${error.response.data.password.join('；')}`;
+              } else {
+                for (const key in error.response.data) {
+                  errorMsg = `${key}：${error.response.data[key].join('；')}`;
+                  break;
+                }
               }
             }
             this.$message.error(errorMsg);
@@ -169,5 +187,10 @@ export default {
 .login-btn, .register-btn {
   width: 100%;
 }
+
+.password-hint {
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+}
 </style>
-    

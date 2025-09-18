@@ -1,55 +1,133 @@
-import axios from 'axios'
-import { getToken, removeToken } from '../utils/auth'
-import router from '../router'
+import axios from 'axios';
 
-const service = axios.create({
-  baseURL: '/api',
-  timeout: 10000,
+// 创建axios实例
+const request = axios.create({
+  baseURL: process.env.VUE_APP_API_BASE_URL || '/',
+  timeout: 5000,
   headers: {
-    'Content-Type': 'application/json;charset=utf-8'
+    'Content-Type': 'application/json'
   }
-})
+});
 
-service.interceptors.request.use(
+// 请求拦截器
+request.interceptors.request.use(
   (config) => {
-    const token = getToken()
+    // 从本地存储获取token
+    const token = localStorage.getItem('token');
+    // 如果token存在，添加到请求头
     if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    return config
+    return config;
   },
   (error) => {
-    console.error('【请求发送失败】', error.message || '未知请求错误')
-    return Promise.reject(error)
+    // 处理请求错误
+    console.error('请求错误:', error);
+    return Promise.reject(error);
   }
-)
+);
 
-service.interceptors.response.use(
+// 响应拦截器
+request.interceptors.response.use(
   (response) => {
-    return response.data
+    // 直接返回响应数据部分
+    return response.data;
   },
   (error) => {
-    const errorResponse = error.response;
-    const errorDetail = errorResponse && errorResponse.data && errorResponse.data.detail;
-    const errorMsg = errorDetail || error.message || '未知响应错误';
+    // 处理响应错误
+    console.error('响应错误:', error);
 
-    if (errorResponse && errorResponse.status === 401) {
-      removeToken()
-      router.push({
-        path: '/login',
-        query: { redirect: router.currentRoute.fullPath }
-      })
-      window.alert('登录已过期或未登录，请重新登录')
+    // 未授权，可能是token过期
+    if (error.response && error.response.status === 401) {
+      // 清除本地存储的token
+      localStorage.removeItem('token');
+      // 跳转到登录页
+      window.location.href = '/login';
     }
 
-    const statusCode = errorResponse && errorResponse.status;
-    console.error(`【响应错误】[${statusCode || '无状态码'}]`, errorMsg)
-    return Promise.reject({
-      status: statusCode,
-      message: errorMsg
-    })
+    return Promise.reject(error);
   }
-)
+);
 
-export default service
-    
+// 账户相关API
+export const login = (credentials) => {
+  return request.post('/accounts/login/', credentials);
+};
+
+export const getCurrentUser = () => {
+  return request.get('/accounts/me/');
+};
+
+// 服务器相关API
+export const getServers = (params) => {
+  return request.get('/resources/servers/', { params });
+};
+
+export const getServer = (id) => {
+  return request.get(`/resources/servers/${id}/`);
+};
+
+export const createServer = (data) => {
+  return request.post('/resources/servers/', data);
+};
+
+export const updateServer = (id, data) => {
+  return request.put(`/resources/servers/${id}/`, data);
+};
+
+export const deleteServer = (id) => {
+  return request.delete(`/resources/servers/${id}/`);
+};
+
+// 机房相关API
+export const getRooms = (params) => {
+  return request.get('/resources/rooms/', { params });
+};
+
+export const getRoom = (id) => {
+  return request.get(`/resources/rooms/${id}/`);
+};
+
+export const createRoom = (data) => {
+  return request.post('/resources/rooms/', data);
+};
+
+export const updateRoom = (id, data) => {
+  return request.put(`/resources/rooms/${id}/`, data);
+};
+
+export const deleteRoom = (id) => {
+  return request.delete(`/resources/rooms/${id}/`);
+};
+
+// 任务相关API
+export const getTasks = (params) => {
+  return request.get('/tasks/', { params });
+};
+
+export const createTask = (data) => {
+  return request.post('/tasks/', data);
+};
+
+export const cancelTask = (id) => {
+  return request.post(`/tasks/${id}/cancel/`);
+};
+
+// 环境相关API
+export const getEnvironments = (params) => {
+  return request.get('/environments/', { params });
+};
+
+export const createEnvironment = (data) => {
+  return request.post('/environments/', data);
+};
+
+export const updateEnvironment = (id, data) => {
+  return request.put(`/environments/${id}/`, data);
+};
+
+export const deleteEnvironment = (id) => {
+  return request.delete(`/environments/${id}/`);
+};
+
+export default request;

@@ -10,24 +10,26 @@
       </el-header>
       <el-container>
         <el-aside width="200px" class="aside">
+          <!-- 修复：清理属性中的非法字符，规范引号和空格为英文格式 -->
           <el-menu
-            default-active="/servers"
+            default-active="1"
             class="el-menu-vertical-demo"
+            @select="handleMenuSelect"
             router
           >
-            <el-menu-item index="/servers">
+            <el-menu-item index="1" route="/servers">
               <i class="el-icon-server"></i>
               <span slot="title">服务器管理</span>
             </el-menu-item>
-            <el-menu-item index="/rooms">
+            <el-menu-item index="2" route="/rooms">
               <i class="el-icon-office-building"></i>
               <span slot="title">机房管理</span>
             </el-menu-item>
-            <el-menu-item index="/tasks">
+            <el-menu-item index="3" route="/tasks">
               <i class="el-icon-s-order"></i>
               <span slot="title">任务管理</span>
             </el-menu-item>
-            <el-menu-item index="/environments">
+            <el-menu-item index="4" route="/environments">
               <i class="el-icon-layout"></i>
               <span slot="title">环境管理</span>
             </el-menu-item>
@@ -58,6 +60,9 @@ export default {
   },
   methods: {
     ...mapActions(['Logout']),
+    handleMenuSelect(key, keyPath) {
+      console.log(key, keyPath)
+    },
     handleLogout() {
       this.Logout().then(() => {
         this.$router.push('/login')

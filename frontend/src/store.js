@@ -27,14 +27,17 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    // 登录
+    // 登录（修复：正确解析token层级）
     Login({ commit }, userInfo) {
       const { username, password } = userInfo
       return new Promise((resolve, reject) => {
         login(username, password).then(response => {
-          // 注意：api.js 已返回 response.data，直接从 response 取数据
-          const { access } = response
-          setToken(access)
+          // 关键修复：因api.js已返回response.data，直接从response获取access
+          const { access } = response  // 原错误：response.data.access
+          if (!access) {
+            throw new Error('登录失败：未获取到令牌')
+          }
+          setToken(access)  // 正确存储token
           commit('SET_TOKEN', access)
           resolve()
         }).catch(error => {
@@ -43,8 +46,8 @@ export default new Vuex.Store({
       })
     },
 
-    // 注册（移除空对象参数，解决 no-empty-pattern 错误）
-    Register(userInfo) {  // 仅保留 userInfo 参数
+    // 注册（修复：移除未使用的commit参数）
+    Register(_, userInfo) {  // 原错误：{ commit }未使用
       const { username, email, password, password2 } = userInfo
       return new Promise((resolve, reject) => {
         register(username, email, password, password2).then(() => {
